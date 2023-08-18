@@ -33,7 +33,8 @@ DJANGO_APPS = (
 
 LOCAL_APPS = ()
 
-THIRD_PARTY_APPS = ("corsheaders",)
+THIRD_PARTY_APPS = ("corsheaders", "ckeditor")
+
 
 # Application definition
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS
@@ -100,8 +101,16 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = "/static/"
+# CKEditor
+CKEDITOR_CONFIGS = {
+    "default": {
+        "toolbar": "full",
+        "autoParagraph": False,
+    }
+}
+
+CKEDITOR_UPLOAD_PATH = "/media/"
+
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
