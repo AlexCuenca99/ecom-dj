@@ -33,7 +33,11 @@ DJANGO_APPS = (
 
 LOCAL_APPS = ()
 
-THIRD_PARTY_APPS = ("corsheaders", "ckeditor")
+THIRD_PARTY_APPS = (
+    "corsheaders",
+    "ckeditor",
+    "rest_framework",
+)
 
 
 # Application definition
@@ -114,3 +118,16 @@ CKEDITOR_UPLOAD_PATH = "/media/"
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Rest framework
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly"
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 15,
+}
