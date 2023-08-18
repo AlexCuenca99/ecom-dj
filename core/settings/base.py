@@ -1,15 +1,24 @@
+import os
 from pathlib import Path
+
+import environ
+
+
+# Environment variables initialization
+env = environ.Env()
+env.prefix = "DJANGO_"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Read .env file
+environ.Env.read_env(os.path.join(BASE_DIR, os.pardir, ".env"))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-j#gxoag$nh!66m&0z$gx9xhy&@fm$%2c4bb)m_u=eo%z4dgn)#"
-
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = []
 
