@@ -21,19 +21,28 @@ environ.Env.read_env(os.path.join(BASE_DIR, os.pardir, ".env"))
 SECRET_KEY = env("SECRET_KEY")
 
 
-# Application definition
-INSTALLED_APPS = [
+# Applications
+DJANGO_APPS = (
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-]
+)
+
+LOCAL_APPS = ()
+
+THIRD_PARTY_APPS = ("corsheaders",)
+
+# Application definition
+INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",

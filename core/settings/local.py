@@ -30,6 +30,13 @@ else:
         "Develpment stage is not cofigured properly. Please set initial, test or prod in .env DJANGO_DEV_STAGE"
     )
 
+# Cors headers
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+CORS_ALLOW_CREDENTIALS = True
+
 
 # Domains
 DOMAIN = "localhost:3000"
