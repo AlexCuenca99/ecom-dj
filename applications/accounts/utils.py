@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from django.conf import settings
 
 
 # Calculate age based on birth date of the user
@@ -22,4 +23,7 @@ def set_age(birth) -> int:
 def photo_file_name(instance, filename) -> str:
     ext = filename.split(".")[-1]
     filename = "photo_{}.{}".format(instance.id, ext)
-    return os.path.join("accounts/", instance.id, "/images/profile", filename)
+
+    return os.path.join(
+        "accounts", "user_%s" % instance.id, "images", "profile", filename
+    )
