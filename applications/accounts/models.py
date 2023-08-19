@@ -22,9 +22,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     email = models.EmailField("Email", max_length=100, unique=True)
     username = models.CharField("Username", max_length=100, unique=True)
     birth = models.DateField("Birth", auto_now=False, auto_now_add=False)
-    gender = models.CharField(
-        "Gender", choices=GENDER_CHOICES, default="MAL", max_length=10
-    )
+    gender = models.CharField("Gender", choices=GENDER_CHOICES, max_length=10)
     photo = models.ImageField(
         "Profile photo",
         upload_to=photo_file_name,
@@ -34,7 +32,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["username", "first_name", "last_name", "birth", "gender"]
+    REQUIRED_FIELDS = [
+        "username",
+        "first_name",
+        "last_name",
+        "birth",
+        "gender",
+        "photo",
+    ]
 
     def get_short_name(self):
         return self.username
