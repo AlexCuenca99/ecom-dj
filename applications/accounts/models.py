@@ -50,6 +50,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     def set_age(self, birth):
         self.age = set_age(birth)
 
+    def has_module_perms(self, app_label):
+        return self.is_staff
+
+    def has_perm(self, perm, obj=None):
+        return self.is_staff
+
     def save(self, *args, **kwargs):
         self.age = set_age(self.birth)
         super().save(*args, **kwargs)
