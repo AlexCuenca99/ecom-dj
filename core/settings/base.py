@@ -136,3 +136,31 @@ REST_FRAMEWORK = {
 
 # Custom user model
 AUTH_USER_MODEL = "accounts.CustomUser"
+
+
+# Custom serializers
+USER_CREATE_PASSWORD_RETYPE_SERIALIZER = (
+    "applications.accounts.serializers.UserCreatePasswordRetypeCustomSerializer"
+)
+USER_SERIALIZER = "applications.accounts.serializers.UserCustomSerializer"
+
+
+# Djoser
+DJOSER = {
+    "LOGIN_FIELD": "email",
+    "USER_CREATE_PASSWORD_RETYPE": True,
+    "USERNAME_CHANGED_EMAIL_CONFIRMATION": True,
+    "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
+    "SEND_CONFIRMATION_EMAIL": True,
+    "SET_USERNAME_RETYPE": True,
+    "SET_PASSWORD_RETYPE": True,
+    "USERNAME_RESET_CONFIRM_URL": "password/reset/confirm/{uid}/{token}",
+    "PASSWORD_RESET_CONFIRM_URL": "email/reset/confirm/{uid}/{token}",
+    "ACTIVATION_URL": "activate/{uid}/{token}",
+    "SEND_ACTIVATION_EMAIL": True,
+    "SERIALIZERS": {
+        "user_create_password_retype": USER_CREATE_PASSWORD_RETYPE_SERIALIZER,
+        "user": USER_SERIALIZER,
+        "current_user": USER_SERIALIZER,
+    },
+}
