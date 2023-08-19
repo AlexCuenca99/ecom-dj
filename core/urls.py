@@ -1,6 +1,6 @@
-from django.urls import path
 from django.conf import settings
 from django.contrib import admin
+from django.urls import path, include
 from django.conf.urls.static import static
 
 from drf_yasg import openapi
@@ -36,4 +36,8 @@ urlpatterns = [
         name="schema-swagger-ui",
     ),
     path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
+    # Djoser url's
+    path("api/v1/", include("djoser.urls")),
+    path("api/v1/", include("djoser.urls.jwt")),
+    path("api/v1/", include("djoser.social.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
