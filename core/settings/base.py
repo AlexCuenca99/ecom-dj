@@ -38,6 +38,7 @@ THIRD_PARTY_APPS = (
     "corsheaders",
     "ckeditor",
     "rest_framework",
+    "drf_yasg",
 )
 
 
