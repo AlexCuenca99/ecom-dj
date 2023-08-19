@@ -48,7 +48,7 @@ EMAIL_USE_TLS = env("EMAIL_USE_TLS")
 
 
 # Static files (CSS, JavaScript, Images)
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = os.path.join(BASE_DIR, "..", "static")
 STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [
@@ -57,7 +57,7 @@ STATICFILES_DIRS = [
 
 
 # Media files
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = os.path.join(BASE_DIR, "..", "media")
 MEDIA_URL = "/media/"
 
 # Domains
