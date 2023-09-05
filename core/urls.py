@@ -40,4 +40,6 @@ urlpatterns = [
     path("api/v1/", include("djoser.urls")),
     path("api/v1/", include("djoser.urls.jwt")),
     path("api/v1/", include("djoser.social.urls")),
+    # Local apps url's
+    path("api/v1/", include("applications.categories.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
