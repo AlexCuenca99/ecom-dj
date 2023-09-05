@@ -6,6 +6,6 @@ from .serializers import CategoryModelSerializer
 
 
 class CategoryModelViewSet(viewsets.ModelViewSet):
-    queryset = Category
+    queryset = Category.objects.all()
     serializer_class = CategoryModelSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
