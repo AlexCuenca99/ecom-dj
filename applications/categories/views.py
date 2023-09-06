@@ -1,10 +1,11 @@
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 from .models import Category
 from .serializers import ParentCategorySerializer
-from .utils import parent_category_setter
+from .utils import parent_category_setter, parent_category_setter_retrieve
 
 
 class ParentCategoryListAPIView(generics.ListAPIView):
@@ -15,5 +16,20 @@ class ParentCategoryListAPIView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         data = parent_category_setter()
         serializer = self.get_serializer(instance=data, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ParentCategoryRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = Category.objects.all()
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    serializer_class = ParentCategorySerializer
+
+    def get(self, request, *args, **kwargs):
+        category = self.get_object()
+
+        data = parent_category_setter_retrieve(category)
+
+        serializer = self.get_serializer(instance=data)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
