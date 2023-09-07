@@ -1,3 +1,4 @@
+from django.db.models.query import QuerySet
 from dataclasses import dataclass
 
 from .models import Category
@@ -10,16 +11,16 @@ class ParentCategory:
     children: list
 
 
-def parent_category_setter(category: Category = None) -> list[ParentCategory]:
+def parent_category_setter(categories: QuerySet[Category]) -> list[ParentCategory]:
     """Generate a query for set categories"""
 
     data = []
 
-    categories = Category.objects.filter(parent=None)
-
     for category in categories:
         category_entry = ParentCategory(
-            id=category.id, name=category.name, children=category.category_set.all()
+            id=str(category.id),
+            name=category.name,
+            children=category.category_set.all(),
         )
         data.append(category_entry)
 
@@ -30,7 +31,7 @@ def parent_category_setter_retrieve(category: Category) -> ParentCategory:
     """Generate a query for the requested category"""
 
     category_entry = ParentCategory(
-        id=category.id, name=category.name, children=category.category_set.all()
+        id=str(category.id), name=category.name, children=category.category_set.all()
     )
 
     return category_entry
