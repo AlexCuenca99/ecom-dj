@@ -15,7 +15,7 @@ def parent_category_setter(category: Category = None) -> list[ParentCategory]:
 
     data = []
 
-    categories = Category.objects.filter(parent=None, id=category.pk)
+    categories = Category.objects.filter(parent=None)
 
     for category in categories:
         category_entry = ParentCategory(
