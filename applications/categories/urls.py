@@ -8,12 +8,12 @@ app_name = "categories_app"
 urlpatterns = [
     path("", include(router.urls)),
     path(
-        "categories/parents",
+        "categories/parents/",
         ParentCategoryListAPIView.as_view(),
         name="categories-parents-list",
     ),
     path(
-        "categories/parents/<pk>",
+        "categories/parents/<str:pk>/",
         ParentCategoryRetrieveAPIView.as_view(),
         name="categories-parents-detail",
     ),
