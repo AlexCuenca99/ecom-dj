@@ -6,7 +6,6 @@ from .views import ParentCategoryListAPIView, ParentCategoryRetrieveAPIView
 app_name = "categories_app"
 
 urlpatterns = [
-    path("", include(router.urls)),
     path(
         "categories/parents/",
         ParentCategoryListAPIView.as_view(),
@@ -17,4 +16,5 @@ urlpatterns = [
         ParentCategoryRetrieveAPIView.as_view(),
         name="categories-parents-detail",
     ),
+    path("", include(router.urls)),
 ]
