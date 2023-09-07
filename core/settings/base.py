@@ -46,6 +46,7 @@ THIRD_PARTY_APPS = (
     "rest_framework_simplejwt",
     "djoser",
     "drf_yasg",
+    "django_filters",
 )
 
 
