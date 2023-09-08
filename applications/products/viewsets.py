@@ -7,6 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Product
 from .serializers import ProductModelSerializer
+from .utils.views_utils import get_related_products
 
 
 class ProductModelViewSet(viewsets.ModelViewSet):
@@ -33,9 +34,8 @@ class ProductModelViewSet(viewsets.ModelViewSet):
     )
     def related_products(self, request, pk=None):
         product = self.get_object()
-        related_products = Product.objects.exclude(id=product.id).filter(
-            category=product.category, is_available=True
-        )
+
+        related_products = get_related_products(product)
         serializer = self.get_serializer(instance=related_products, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
