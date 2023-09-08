@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from model_utils.models import TimeStampedModel
 
 from applications.categories.models import Category
+from .utils import product_photo_file_path
 
 User = get_user_model()
 
@@ -14,7 +15,7 @@ class Product(TimeStampedModel):
     name = models.CharField("Name", max_length=255)
     sold = models.PositiveIntegerField("Sold", default=0)
     stock = models.PositiveIntegerField("Stock", default=0)
-    photo = models.ImageField("Photo", upload_to="products")
+    photo = models.ImageField("Photo", upload_to=product_photo_file_path)
     description = models.TextField("Description", max_length=255)
     is_available = models.BooleanField("Is available", default=True)
     price = models.DecimalField("Price", max_digits=10, decimal_places=2)
