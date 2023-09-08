@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from model_utils.models import TimeStampedModel
 
 from applications.categories.models import Category
-from .utils import product_photo_file_path
+from .utils.models_utils import product_photo_file_path
 
 User = get_user_model()
 
