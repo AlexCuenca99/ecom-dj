@@ -12,7 +12,7 @@ urlpatterns = [
         name="categories-parents-list",
     ),
     path(
-        "categories/parents/<str:pk>/",
+        "categories/<str:pk>/parents/",
         ParentCategoryRetrieveAPIView.as_view(),
         name="categories-parents-detail",
     ),
