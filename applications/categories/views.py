@@ -1,6 +1,7 @@
 from rest_framework import generics, status
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Category
 from .serializers import ParentCategorySerializer
@@ -11,6 +12,8 @@ class ParentCategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.filter(parent=None)
     permission_classes = [AllowAny]
     serializer_class = ParentCategorySerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["id"]
 
     def list(self, request, *args, **kwargs):
         data = parent_category_setter(self.get_queryset())
