@@ -23,7 +23,7 @@ class ProductModelViewSet(viewsets.ModelViewSet):
         "price": ["gte", "lte", "exact", "lt", "gt"],
         "category": ["exact"],
     }
-    ordering_fields = ["price", "name", "created"]
+    ordering_fields = ["price", "name", "created", "sold"]
     search_fields = [
         "name",
     ]
