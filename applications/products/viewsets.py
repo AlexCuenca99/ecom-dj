@@ -19,7 +19,10 @@ class ProductModelViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
         filters.OrderingFilter,
     ]
-    filterset_fields = {"name": ["exact"], "price": ["gte", "lte", "exact", "lt", "gt"]}
+    filterset_fields = {
+        "price": ["gte", "lte", "exact", "lt", "gt"],
+        "category": ["exact"],
+    }
     ordering_fields = ["price", "name"]
     search_fields = [
         "name",
