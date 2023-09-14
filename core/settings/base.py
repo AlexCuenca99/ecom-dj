@@ -33,10 +33,10 @@ DJANGO_APPS = (
 )
 
 LOCAL_APPS = (
-    "applications.accounts",
     "applications.categories",
     "applications.products",
     "applications.cart",
+    "applications.accounts",
 )
 
 THIRD_PARTY_APPS = (
