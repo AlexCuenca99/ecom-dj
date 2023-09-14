@@ -1,6 +1,5 @@
 import os
 from datetime import datetime
-from django.conf import settings
 
 
 # Calculate age based on birth date of the user
