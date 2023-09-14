@@ -36,6 +36,7 @@ LOCAL_APPS = (
     "applications.accounts",
     "applications.categories",
     "applications.products",
+    "applications.cart",
 )
 
 THIRD_PARTY_APPS = (
