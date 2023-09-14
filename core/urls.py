@@ -43,4 +43,5 @@ urlpatterns = [
     # Local apps url's
     path("api/v1/", include("applications.categories.urls")),
     path("api/v1/", include("applications.products.urls")),
+    path("api/v1/", include("applications.cart.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
