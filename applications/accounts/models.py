@@ -1,7 +1,5 @@
 import uuid
 from django.db import models
-from django.dispatch import receiver
-from django.db.models.signals import post_save
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
 from model_utils.models import TimeStampedModel
@@ -9,7 +7,6 @@ from model_utils.models import TimeStampedModel
 from .managers import CustomUserManager
 from .choices import GENDER_CHOICES
 from .utils import photo_file_name, set_age
-from applications.cart.models import Cart
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
@@ -65,9 +62,3 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
 
     def __str__(self):
         return self.email
-
-
-@receiver(post_save, sender=CustomUser, dispath_uid="create_cart_user")
-def create_cart(sender, instance, created, **kwargs):
-    if created:
-        Cart.objects.create(user=instance)
