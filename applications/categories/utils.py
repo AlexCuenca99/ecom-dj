@@ -1,7 +1,11 @@
-from django.db.models.query import QuerySet
+from typing import List
 from dataclasses import dataclass
+from django.db.models.query import QuerySet
 
 from .models import Category
+
+
+from django.db.models import Prefetch
 
 
 @dataclass
@@ -11,20 +15,16 @@ class ParentCategory:
     children: list
 
 
-def parent_category_setter(categories: QuerySet[Category]) -> list[ParentCategory]:
+def parent_category_setter(categories: QuerySet[Category]) -> QuerySet[Category]:
     """Generate a query for set categories"""
 
-    data = []
+    children = Category.objects.filter(parent__in=categories)
 
-    for category in categories:
-        category_entry = ParentCategory(
-            id=str(category.id),
-            name=category.name,
-            children=category.category_set.all(),
-        )
-        data.append(category_entry)
+    formatted_parent_categories = categories.prefetch_related(
+        Prefetch("category_set", queryset=children, to_attr="children")
+    )
 
-    return data
+    return formatted_parent_categories
 
 
 def parent_category_setter_retrieve(category: Category) -> ParentCategory:
