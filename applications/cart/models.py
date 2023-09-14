@@ -1,12 +1,11 @@
 import uuid
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 from model_utils.models import TimeStampedModel
 
-from applications.products.models import Product
-
-User = get_user_model()
+from applications.products.models import Product, User
 
 
 class Cart(TimeStampedModel):
@@ -23,3 +22,9 @@ class CartItem(TimeStampedModel):
         Product, on_delete=models.CASCADE, related_name="cart_items"
     )
     quantity = models.PositiveSmallIntegerField(default=1)
+
+
+@receiver(post_save, sender=User, dispatch_uid="create_cart_user")
+def create_cart(sender, instance, created, **kwargs):
+    if created:
+        Cart.objects.create(user=instance)
