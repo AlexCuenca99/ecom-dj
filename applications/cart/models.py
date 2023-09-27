@@ -24,6 +24,8 @@ class CartItem(TimeStampedModel):
     quantity = models.PositiveSmallIntegerField(default=1)
 
 
+# This is not the best way to do the shopping cart creation but for the sake of
+# the Django Signals learning is done this way
 @receiver(post_save, sender=User, dispatch_uid="create_cart_user")
 def create_cart(sender, instance, created, **kwargs):
     if created:
