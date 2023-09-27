@@ -14,6 +14,15 @@ class Cart(TimeStampedModel):
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total_items = models.PositiveSmallIntegerField(default=0)
 
+    class Meta:
+        verbose_name = "Cart"
+        verbose_name_plural = "Carts"
+        ordering = ["-created"]
+        unique_together = ["user"]
+
+    def __str__(self):
+        return f"Cart - {self.user.username}"
+
 
 class CartItem(TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -22,6 +31,19 @@ class CartItem(TimeStampedModel):
         Product, on_delete=models.CASCADE, related_name="cart_items"
     )
     quantity = models.PositiveSmallIntegerField(default=1)
+
+    class Meta:
+        verbose_name = "Cart Item"
+        verbose_name_plural = "Cart Items"
+        ordering = ["-created"]
+        unique_together = ["cart", "product"]
+
+    @property
+    def partial_price(self):
+        return self.quantity * self.product.price
+
+    def __str__(self):
+        return f"{self.product.name} - {self.quantity} - {self.partial_price} $"
 
 
 # This is not the best way to do the shopping cart creation but for the sake of
