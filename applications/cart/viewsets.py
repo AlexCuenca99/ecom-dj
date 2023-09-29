@@ -25,7 +25,7 @@ class CartModelViewSet(ModelViewSet):
 
     @action(
         detail=False,
-        methods=["GET"],
+        methods=["GET", "PATCH", "DELETE"],
         name="My cart",
         url_path="my-cart",
         url_name="my-cart",
@@ -34,3 +34,7 @@ class CartModelViewSet(ModelViewSet):
         self.get_object = self.get_instance
         if request.method == "GET":
             return self.retrieve(request, *args, **kwargs)
+        if request.method == "PATCH":
+            return self.partial_update(request, *args, **kwargs)
+        if request.method == "DELETE":
+            return Response(status=HTTP_200_OK)
