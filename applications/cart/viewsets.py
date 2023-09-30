@@ -3,8 +3,6 @@ from rest_framework.status import HTTP_200_OK
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, SAFE_METHODS
 
-from drf_yasg.utils import swagger_auto_schema
-
 from .models import Cart
 from .serializers import CartModelSerializer
 from rest_framework.response import Response
