@@ -24,6 +24,7 @@ schema_view = get_schema_view(
 
 
 urlpatterns = [
+    path("__reload__/", include("django_browser_reload.urls")),
     # Base url's
     path("admin/", admin.site.urls),
     # Yasg urls'
