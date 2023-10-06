@@ -20,6 +20,18 @@ class CartModelSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class CartItemCreateModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        exclude = [
+            "cart",
+        ]
+
+    def create(self, validated_data):
+        products = validated_data
+        print("\n\n PRODUCTS")
+
+
 # class CartItemModelSerializer(serializers.ModelSerializer):
 # products = CartItemModelSerializer(source="items", many=True)
 
