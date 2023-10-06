@@ -11,7 +11,11 @@ from rest_framework.permissions import (
 from drf_yasg.utils import swagger_auto_schema
 
 from .models import Cart, CartItem
-from .serializers import CartModelSerializer, CartItemModelSerializer
+from .serializers import (
+    CartModelSerializer,
+    CartItemModelSerializer,
+    CartItemCreateModelSerializer,
+)
 
 
 class CartModelViewSet(ModelViewSet):
@@ -42,18 +46,31 @@ class CartModelViewSet(ModelViewSet):
 
 
 class CartItemModelViewSet(ModelViewSet):
-    serializer_class = CartItemModelSerializer
+    serializer_class = CartItemCreateModelSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def get_queryset(self):
-        return self.request.user.cart.items.all()
+    def get_cart_instance(self):
+        cart_id = self.kwargs.get("id", None)
 
-    def get_instance(self):
+        if cart_id is None:
+            return None
+
+        return Cart.objects.get(id=cart_id)
+
+    def get_my_cart_instance(self):
         return self.request.user.cart
 
+    def get_queryset(self):
+        cart = self.get_cart_instance()
+
+        if cart is None:
+            return CartItem.objects.none()
+
+        return cart.items.all()
+
     @swagger_auto_schema(
-        request_body=CartItemModelSerializer(many=True),
-        responses={200: CartModelSerializer()},
+        request_body=CartItemCreateModelSerializer(many=True),
+        responses={200: CartModelSerializer(many=False)},
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
