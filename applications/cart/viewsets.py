@@ -46,7 +46,6 @@ class CartModelViewSet(ModelViewSet):
 
 
 class CartItemModelViewSet(ModelViewSet):
-    serializer_class = CartItemCreateModelSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_cart_instance(self):
@@ -59,6 +58,11 @@ class CartItemModelViewSet(ModelViewSet):
 
     def get_my_cart_instance(self):
         return self.request.user.cart
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return CartItemCreateModelSerializer
+        return CartItemModelSerializer
 
     def get_queryset(self):
         cart = self.get_cart_instance()
