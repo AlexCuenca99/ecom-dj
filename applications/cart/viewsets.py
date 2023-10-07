@@ -59,6 +59,12 @@ class CartItemModelViewSet(ModelViewSet):
     def get_my_cart_instance(self):
         return self.request.user.cart
 
+    def get_serializer(self, *args, **kwargs):
+        if self.action == "create":
+            data = kwargs.get("data")
+            kwargs["many"] = isinstance(data, list)
+        return super(CartItemModelViewSet, self).get_serializer(*args, **kwargs)
+
     def get_serializer_class(self):
         if self.action == "create":
             return CartItemCreateModelSerializer
