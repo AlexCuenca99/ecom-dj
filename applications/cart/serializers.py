@@ -83,6 +83,12 @@ class CartItemCreateModelSerializer(serializers.ModelSerializer):
         ]
         list_serializer_class = CartItemBulkCreateSerializer
 
+    def validate(self, data):
+        """
+        Check product availabilty
+        """
+        print(data)
+
     def create(self, validated_data):
         cart_id = self.context.get("view").kwargs.get("id")
         cart = Cart.objects.get(id=cart_id)
