@@ -25,8 +25,7 @@ class CartItemBulkCreateSerializer(serializers.ListSerializer):
         cart_id = self.context.get("view").kwargs.get("id")
         cart = Cart.objects.get(id=cart_id)
 
-        validated_items = list()
-        validation_error = dict()
+        valid_new_cart_items = []
 
         for cart_item in validated_data:
             # Assign cart to item
@@ -41,29 +40,20 @@ class CartItemBulkCreateSerializer(serializers.ListSerializer):
                 product.stock += cart_item.quantity
                 product.save()
 
-                if cart_item_product_stock_is_available(product, quantity):
-                    cart_item.quantity = quantity
-                    cart_item.save()
-                else:
-                    validation_error[
-                        "message"
-                    ] = f"Stock is not enough for {product.name}"
-                    validation_error["code"] = "not-enough-product-stock"
+                cart_item.quantity = quantity
+                cart_item.save()
+
+                product.stock -= quantity
+                product.save()
             else:
                 if cart_item_product_stock_is_available(product, quantity):
-                    validated_items.append(cart_item)
-                else:
-                    validation_error[
-                        "message"
-                    ] = f"Stock is not enough for {product.name}"
-                    validation_error["code"] = "not-enough-product-stock"
+                    valid_new_cart_items.append(cart_item)
+                    product.stock -= quantity
+                    product.save()
 
-        if validation_error:
-            raise serializers.ValidationError(validation_error)
+        cart_item_data = [CartItem(**item) for item in valid_new_cart_items]
 
-        cart_item_data = [CartItem(**item) for item in validated_items]
-
-        # return CartItem.objects.bulk_create(cart_item_data)
+        return CartItem.objects.bulk_create(cart_item_data)
 
 
 def cart_item_product_stock_is_available(product, quantity):
@@ -84,10 +74,42 @@ class CartItemCreateModelSerializer(serializers.ModelSerializer):
         list_serializer_class = CartItemBulkCreateSerializer
 
     def validate(self, data):
+        response = dict()
+
+        quantity = data.get("quantity")
+        product: Product = data.get("product")
+        cart_id = self.context.get("view").kwargs.get("id")
+        cart = Cart.objects.get(id=cart_id)
+
         """
-        Check product availabilty
+        Check product existence in the cart
         """
-        print(data)
+
+        cart_item = CartItem.objects.filter(cart=cart, product=product)
+
+        if cart_item.exists():
+            """
+            Check the product availability with restored value
+            """
+            restored_product_quantity = product.stock + cart_item.first().quantity
+
+            if restored_product_quantity < quantity:
+                response[
+                    "message"
+                ] = f"The new quantity exceed the stock for {product.name}"
+                response["code"] = "not-enough-product-stock"
+        else:
+            """
+            Check product availabilty
+            """
+            if quantity > product.stock:
+                response["message"] = f"Stock is not enough for {product.name}"
+                response["code"] = "not-enough-product-stock"
+
+        if response:
+            raise serializers.ValidationError(response)
+        else:
+            return data
 
     def create(self, validated_data):
         cart_id = self.context.get("view").kwargs.get("id")
@@ -96,31 +118,22 @@ class CartItemCreateModelSerializer(serializers.ModelSerializer):
         quantity = validated_data.get("quantity")
         product: Product = validated_data.get("product")
 
+        cart_item = CartItem.objects.filter(cart=cart, product=product)
+
         # If the product is already in the cart
-        if CartItem.objects.filter(cart=cart, product=product).exists():
-            cart_item = CartItem.objects.get(cart=cart, product=product)
+        if cart_item.exists():
+            cart_item = cart_item.first()
 
             # Reset the quantity of the product
             product.stock += cart_item.quantity
             product.save()
 
-            # Validate quantity with stock
-            if quantity > product.stock:
-                raise serializers.ValidationError(
-                    {"message": f"Stock is not enough for {product.name}"},
-                    code="not-enough-product-stock",
-                )
-            else:
-                cart_item.quantity = quantity
-                cart_item.save()
+            cart_item.quantity = quantity
+            cart_item.save()
+
+            product.stock -= quantity
+            product.save()
         else:
-            # Validate quantity with stock
-            if quantity > product.stock:
-                raise serializers.ValidationError(
-                    {"message": f"Stock is not enough for {product.name}"},
-                    code="not-enough-product-stock",
-                )
-            else:
-                CartItem.objects.create(cart=cart, product=product, quantity=quantity)
+            CartItem.objects.create(cart=cart, product=product, quantity=quantity)
 
         return cart_item
