@@ -1,5 +1,5 @@
 import uuid
-from django.db import models
+from django.db import models, transaction
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
@@ -25,6 +25,20 @@ class Cart(TimeStampedModel):
 
     def __str__(self):
         return f"Cart - {self.user.username}"
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            self.update_totals()
+            super().save(*args, **kwargs)
+
+    def update_totals(self):
+        cart_items = self.items.all()
+
+        total_items = cart_items.count()
+        total_price = sum(cart_item.partial_price for cart_item in cart_items)
+
+        self.total_items = total_items
+        self.total_price = total_price
 
 
 class CartItem(TimeStampedModel):
