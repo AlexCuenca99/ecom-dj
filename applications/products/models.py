@@ -29,11 +29,15 @@ class Product(TimeStampedModel):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
-        return self.name + " - " + str(self.price) + " $"
-
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
         ordering = ["-created"]
         unique_together = ["name", "owner"]
+
+    def __str__(self):
+        return self.name + " - " + str(self.price) + " $"
+
+    def save(self, *args, **kwargs):
+        self.is_available = self.stock > 0
+        return super(Product, self).save(*args, **kwargs)
