@@ -1,3 +1,5 @@
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+
 from rest_framework import serializers
 
 from .models import Cart, CartItem
@@ -22,14 +24,11 @@ class CartModelSerializer(serializers.ModelSerializer):
 
 class CartItemBulkCreateSerializer(serializers.ListSerializer):
     def create(self, validated_data):
-        cart_id = self.context.get("view").kwargs.get("id")
-        cart = Cart.objects.get(id=cart_id)
-
         valid_new_cart_items = []
 
         for cart_item in validated_data:
             # Assign cart to item
-            cart_item["cart"] = cart
+            cart: Cart = cart_item["cart"]
             product: Product = cart_item["product"]
             quantity = cart_item["quantity"]
 
@@ -38,13 +37,16 @@ class CartItemBulkCreateSerializer(serializers.ListSerializer):
 
                 # Reset the quantity of the product
                 product.stock += cart_item.quantity
+                product.sold -= cart_item.quantity
                 product.save()
 
                 cart_item.quantity = quantity
                 cart_item.save()
 
                 product.stock -= quantity
+                product.sold += quantity
                 product.save()
+
             else:
                 if cart_item_product_stock_is_available(product, quantity):
                     valid_new_cart_items.append(cart_item)
@@ -52,6 +54,9 @@ class CartItemBulkCreateSerializer(serializers.ListSerializer):
                     product.save()
 
         cart_item_data = [CartItem(**item) for item in valid_new_cart_items]
+
+        # Set the new totals in cart model
+        cart.save()
 
         return CartItem.objects.bulk_create(cart_item_data)
 
@@ -68,29 +73,84 @@ def cart_item_product_already_in_cart(product: Product, cart: Cart) -> bool:
 class CartItemCreateModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
-        exclude = [
-            "cart",
-        ]
+        fields = "__all__"
         list_serializer_class = CartItemBulkCreateSerializer
+        extra_kwargs = {
+            "cart": {"write_only": True},
+        }
+
+    def get_unique_together_validators(self):
+        """Overriding method to disable unique together checks"""
+        return []
+
+    def to_internal_value(self, data):
+        product_id = data.get("product")
+        quantity = data.get("quantity")
+
+        if not product_id:
+            raise serializers.ValidationError(
+                {"product": "Product is a required field"}
+            )
+
+        if not quantity:
+            raise serializers.ValidationError(
+                {"quantity": "Quantity is a required field"}
+            )
+        else:
+            try:
+                quantity = int(quantity)
+
+                if quantity <= 0:
+                    raise serializers.ValidationError(
+                        {"quantity": "Quantity must be greater than 0"}
+                    )
+            except ValueError:
+                raise serializers.ValidationError(
+                    {"quantity": "Quantity must be an integer"}
+                )
+
+        try:
+            product = Product.objects.get(id=product_id)
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError(
+                {"product": f'Invalid pk "{product_id}" - object does not exist.'}
+            )
+        except ValidationError as e:
+            raise serializers.ValidationError({"product": e})
+
+        cart_id = self.context.get("view").kwargs.get("id")
+
+        try:
+            cart = Cart.objects.get(id=cart_id)
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError(
+                {"cart": f'Invalid pk "{cart_id}" - object does not exist.'}
+            )
+        except ValidationError as e:
+            raise serializers.ValidationError({"cart": e})
+
+        return {
+            "product": product,
+            "quantity": quantity,
+            "cart": cart,
+        }
 
     def validate(self, data):
+        """
+        Ensure that the product and quantity are according with the current
+        data in DB
+        """
         response = dict()
 
         quantity = data.get("quantity")
         product: Product = data.get("product")
-        cart_id = self.context.get("view").kwargs.get("id")
-        cart = Cart.objects.get(id=cart_id)
+        cart: Cart = data.get("cart")
 
-        """
-        Check product existence in the cart
-        """
-
+        # Check product existence in the cart
         cart_item = CartItem.objects.filter(cart=cart, product=product)
 
         if cart_item.exists():
-            """
-            Check the product availability with restored value
-            """
+            # Check the product availability with restored value
             restored_product_quantity = product.stock + cart_item.first().quantity
 
             if restored_product_quantity < quantity:
@@ -99,9 +159,7 @@ class CartItemCreateModelSerializer(serializers.ModelSerializer):
                 ] = f"The new quantity exceed the stock for {product.name}"
                 response["code"] = "not-enough-product-stock"
         else:
-            """
-            Check product availabilty
-            """
+            # Check product availabilty
             if quantity > product.stock:
                 response["message"] = f"Stock is not enough for {product.name}"
                 response["code"] = "not-enough-product-stock"
@@ -112,11 +170,9 @@ class CartItemCreateModelSerializer(serializers.ModelSerializer):
             return data
 
     def create(self, validated_data):
-        cart_id = self.context.get("view").kwargs.get("id")
-        cart = Cart.objects.get(id=cart_id)
-
         quantity = validated_data.get("quantity")
         product: Product = validated_data.get("product")
+        cart: Cart = validated_data.get("cart")
 
         cart_item = CartItem.objects.filter(cart=cart, product=product)
 
@@ -126,13 +182,18 @@ class CartItemCreateModelSerializer(serializers.ModelSerializer):
 
             # Reset the quantity of the product
             product.stock += cart_item.quantity
+            product.sold -= cart_item.quantity
             product.save()
 
             cart_item.quantity = quantity
             cart_item.save()
 
             product.stock -= quantity
+            product.sold += quantity
             product.save()
+
+            # Set new totals in cart model
+            cart.save()
         else:
             CartItem.objects.create(cart=cart, product=product, quantity=quantity)
 
